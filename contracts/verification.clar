@@ -271,10 +271,12 @@
 
     ;; Calculate trust score based on issuer reputation and verification count
     (let ((issuer-factor (/ (get reputation-score issuer-stats) u10))
-          (verification-factor (min u50 verification-count))
+          (verification-factor (if (<= verification-count u50) verification-count u50))
           (activity-factor (if (> (- stacks-block-height (get last-activity issuer-stats)) u1000) u90 u100)))
 
-      (min u100 (+ base-score (+ issuer-factor (+ verification-factor activity-factor))))
+      (let ((total-score (+ base-score (+ issuer-factor (+ verification-factor activity-factor)))))
+        (if (<= total-score u100) total-score u100)
+      )
     )
   )
 )
@@ -306,7 +308,7 @@
       }
     )
 
-    (ok true)
+    true
   )
 )
 
